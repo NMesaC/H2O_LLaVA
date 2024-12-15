@@ -25,10 +25,13 @@ from transformers.modeling_outputs import CausalLMOutputWithPast
 from transformers.generation.utils import GenerateOutput
 
 from ..llava_arch import LlavaMetaModel, LlavaMetaForCausalLM
+from ...h2o_utils.h2o_llama_attn import H2OMaskedLlamaAttention
 
 
 class LlavaConfig(LlamaConfig):
     model_type = "llava_llama"
+    num_heavy_hitter_tokens = 256
+    num_window_length = 2048
 
 
 class LlavaLlamaModel(LlavaMetaModel, LlamaModel):
@@ -47,7 +50,11 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM, LlavaMetaForCausalLM):
         self.pretraining_tp = config.pretraining_tp
         self.vocab_size = config.vocab_size
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
-
+        # Due to class structure, we initialize the H2O Attn Here
+        num_layers = len(self.model.layers)
+        for layer_idx in range(num_layers):
+            self.model.layers[layer_idx].self_attn = H2OMaskedLlamaAttention(config, layer_idx,
+                config.num_heavy_hitter_tokens, config.num_window_length)
         # Initialize weights and apply final processing
         self.post_init()
 

@@ -29,7 +29,10 @@ def main(args):
     disable_torch_init()
 
     model_name = get_model_name_from_path(args.model_path)
-    tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name, args.load_8bit, args.load_4bit, device=args.device)
+    # tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name, args.load_8bit, args.load_4bit, device=args.device)
+    # (NICO) NOTE: Updated line for transformers 4.39
+    # NOTE: This should be updated with a new BitsAndBytes config item, I think
+    tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name, args.load_4bit, device=args.device)
 
     if "llama-2" in model_name.lower():
         conv_mode = "llava_llama_2"
@@ -82,7 +85,7 @@ def main(args):
             else:
                 inp = DEFAULT_IMAGE_TOKEN + '\n' + inp
             image = None
-        
+
         conv.append_message(conv.roles[0], inp)
         conv.append_message(conv.roles[1], None)
         prompt = conv.get_prompt()
