@@ -1,7 +1,10 @@
 """
-Cache Util File
-Source: https://github.com/meta-llama/llama-recipes/blob/main/recipes/experimental/long_context/H2O/utils/cache.py
+Cache Implementation
+Source:
+    https://github.com/meta-llama/llama-recipes/blob/main/recipes/experimental/long_context/H2O/utils/cache.py
 """
+
+
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -511,7 +514,7 @@ class HHCache(Cache):
         return legacy_cache
 
     @classmethod
-    def from_legacy_cache(cls, window_length: int, num_hh_tokens: int, past_key_values: Optional[Tuple[Tuple[torch.FloatTensor]]] = None) -> "DynamicCache":
+    def from_legacy_cache(cls, window_length: int, num_hh_tokens: int, past_key_values: Optional[Tuple[Tuple[torch.FloatTensor]]] = None) -> "HHCache":
         """Converts a cache in the legacy cache format into an equivalent `DynamicCache`."""
         cache = cls(window_length, num_hh_tokens)
         if past_key_values is not None:
